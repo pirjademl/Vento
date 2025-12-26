@@ -30,16 +30,13 @@ export default function SignupPage() {
     if (!user.firstName || !user.lastName || !user.email || !user.password) {
       alert("all fields are mandatory");
     }
-    const response = await fetch(
-      "http://10.133.155.166:8000/api/v1/auth/signup",
-      {
-        body: JSON.stringify(user),
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    const response = await fetch("http://localhost:8000/api/v1/auth/signup", {
+      body: JSON.stringify(user),
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+    });
     if (response.status === 201) {
       router.push("/login");
     }

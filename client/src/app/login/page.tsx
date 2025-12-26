@@ -21,16 +21,13 @@ export default function LoginPage() {
     e.preventDefault();
 
     try {
-      const response = await fetch(
-        "http://10.133.155.166:8000/api/v1/auth/login",
-        {
-          body: JSON.stringify(user),
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+      const response = await fetch("http://localhost:8000/api/v1/auth/login", {
+        body: JSON.stringify(user),
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+      });
       const data = await response.json();
       localStorage.setItem("access_token", data.access_token);
       localStorage.setItem("username", data.username);

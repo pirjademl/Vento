@@ -24,7 +24,7 @@ export const WebsocketProvider = ({ children }) => {
     const user = localStorage.getItem("username");
 
     const websocket = new WebSocket(
-      `ws://10.133.155.166:8000/ws/rooms/${roomid}?token=${token}`,
+      `ws://localhost:8000/ws/rooms/${roomid}?token=${token}`,
     );
 
     websocket.onmessage = (event) => {
