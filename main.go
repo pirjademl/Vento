@@ -59,7 +59,7 @@ func main() {
 		return
 	}
 	handler := handlers.Handler{DB: db}
-	pool := websocketservice.NewPool()
+	pool := websocketservice.NewPool(*db)
 	go pool.Start()
 
 	wsHanlder := websocketservice.NewWebsocketHandler(db)
@@ -73,30 +73,38 @@ func main() {
 	publicrouter.HandleFunc("/api/v1/auth/login", handler.Login).Methods("POST")
 	publicrouter.HandleFunc("/api/v1/auth/user", handler.CheckUserSession).Methods("POST")
 
-	//	protectedRouter := publicrouter.PathPrefix("/api/v1/rooms/").Subrouter()
+	//	roomRouter := publicrouter.PathPrefix("/api/v1/rooms/").Subrouter()
 	//
-	//	protectedRouter.Use(loggingMiddleware)
-	//	protectedRouter.Use(middleware.AuthMiddleware)
+	//	roomRouter.Use(loggingMiddleware)
+	//	roomRouter.Use(middleware.AuthMiddleware)
 
-	//	protectedRouter.HandleFunc("", handler.CREATERoom).Methods("POST")
+	//	roomRouter.HandleFunc("", handler.CREATERoom).Methods("POST")
 
-	//	protectedRouter.HandleFunc("", handler.GETROOMs).Methods("GET")
-	//	protectedRouter.HandleFunc("{roomId}", handler.GetRoom).Methods("GET")
+	//	roomRouter.HandleFunc("", handler.GETROOMs).Methods("GET")
+	//	roomRouter.HandleFunc("{roomId}", handler.GetRoom).Methods("GET")
 	//
 	// 1. Remove the trailing slash from the Prefix
-	protectedRouter := publicrouter.PathPrefix("/api/v1/rooms").Subrouter()
+	roomRouter := publicrouter.PathPrefix("/api/v1/rooms").Subrouter()
+	userRouter := publicrouter.PathPrefix("/api/v1/user").Subrouter()
 
-	protectedRouter.Use(loggingMiddleware)
-	protectedRouter.Use(middleware.AuthMiddleware)
+	//accepts mutliple middleware functions
+
+	roomRouter.Use(loggingMiddleware, middleware.AuthMiddleware)
+	userRouter.Use(loggingMiddleware, middleware.AuthMiddleware)
+
+	userRouter.HandleFunc("", handler.GETUser).Methods("GET")
+
+	//user details room endpoint
 
 	// 2. Use "/" for the base 'rooms' list
-	protectedRouter.HandleFunc("", handler.GETROOMs).Methods("GET")
-	protectedRouter.HandleFunc("", handler.CREATERoom).Methods("POST")
+
+	roomRouter.HandleFunc("", handler.GETROOMs).Methods("GET")
+	roomRouter.HandleFunc("", handler.CREATERoom).Methods("POST")
 
 	// 3. Use "/{roomId}" for the specific room
-	protectedRouter.HandleFunc("/{roomId}", handler.GetRoom).Methods("GET")
+	roomRouter.HandleFunc("/{roomId}", handler.GetRoom).Methods("GET")
 
-	protectedRouter.HandleFunc("/join", handler.JOINRoom).Methods("POST")
+	roomRouter.HandleFunc("/join", handler.JOINRoom).Methods("POST")
 
 	middleware := corsMiddleware(publicrouter)
 
