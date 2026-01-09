@@ -17,7 +17,7 @@ type LoginResponse struct {
 	Username    string `json:"username"`
 }
 type UserJwt struct {
-	UserId int
+	UserId int `json:"user_id"`
 	RegisterUser
 }
 

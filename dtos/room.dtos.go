@@ -38,6 +38,7 @@ type Participant struct {
 }
 
 type RoomDetails struct {
+	Name         string `json:"name"`
 	Username     string `json:"username"`
 	Description  string `json:"description"`
 	Category     string `json:"category"`
