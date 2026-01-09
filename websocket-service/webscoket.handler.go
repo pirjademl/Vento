@@ -70,6 +70,6 @@ func (ws *Websockethandler) ServeWebsocket(
 		Conn:     conn,
 	}
 	pool.Register <- client
-	client.Read()
+	go client.Read()
 
 }
