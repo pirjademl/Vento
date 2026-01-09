@@ -23,9 +23,9 @@ func (h *Handler) GetRoom(w http.ResponseWriter, r *http.Request) {
 	}
 	var roomdetails dtos.RoomDetails
 	err = h.DB.DB.QueryRow(
-		`SELECT username,Description,Category FROM rooms JOIN users on rooms.owner_id=users.user_id WHERE room_id=$1`,
+		`SELECT username,Description,Category,name FROM rooms JOIN users on rooms.owner_id=users.user_id WHERE room_id=$1`,
 		roomId,
-	).Scan(&roomdetails.Username, &roomdetails.Description, &roomdetails.Category)
+	).Scan(&roomdetails.Username, &roomdetails.Description, &roomdetails.Category, &roomdetails.Name)
 	if err != nil {
 		println(err.Error())
 		http.Error(w, "Room Not FOund", http.StatusNotFound)
