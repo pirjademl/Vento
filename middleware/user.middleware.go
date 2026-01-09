@@ -15,22 +15,23 @@ import (
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		header := strings.Split(r.Header.Get("Authorization"), " ")
+
 		secret := os.Getenv("JWT_SECRET")
 		var token string
-		if len(header) <= 0 && !r.URL.Query().Has("token") {
+		if len(header) == 0 && !r.URL.Query().Has("token") {
 			http.Error(w, "AUTHENTICATION FAILED", http.StatusForbidden)
 			return
 		}
 
 		if len(header) == 1 && r.URL.Query().Has("token") {
 			token = r.URL.Query().Get("token")
-		} else if len(header) > 1 && !r.URL.Query().Has("token") {
+		} else if len(header) > 1 {
 			token = header[1]
 		}
 
 		if token == "" {
+			log.Println("token is string and  empty")
 			http.Error(w, "AUTHENTICATION FAILED", http.StatusForbidden)
-			log.Println("token is empty")
 			return
 		}
 		claims := jwt.MapClaims{}
@@ -46,10 +47,8 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		firstName, firstOk := claims["firstName"].(string)
 		lastName, lastok := claims["lastName"].(string)
 		email, emailok := claims["email"].(string)
-		floatId, idok := claims["UserId"].(float64)
+		floatId, idok := claims["user_id"].(float64)
 
-		fmt.Printf("%T\n", claims["UserId"])
-		fmt.Println(usernameok, lastok, emailok, idok, firstOk)
 		if !usernameok || !lastok || !emailok || !idok || !firstOk {
 			http.Error(w, "AUTHENTICATION FAILED", http.StatusForbidden)
 			log.Println("token is empty")
