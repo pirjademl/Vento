@@ -17,7 +17,8 @@ export default function RoomPage() {
   const params = useParams();
   const roomid = parseInt(params.roomid as string, 10);
 
-  const { messages, sendMessage, currentUser } = useContext(WebsocketContext);
+  const { sendMessage, messages, currentUser } = useContext(WebsocketContext);
+
   const [message, setMessage] = useState<ISocketMessage>({
     type: "typing",
     body: "",
@@ -28,26 +29,16 @@ export default function RoomPage() {
 
   const { data, isError, isLoading } = useFetch(`/rooms/${roomid}`);
 
-  // Automatically scroll to the latest message
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target.value.length > 0) {
-      sendMessage({
-        type: "typing",
-        body: "",
-        username: currentUser,
-        room_id: roomid,
-      });
-    }
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    //   setMessage(event.target.value);
-    setMessage((prevMessage) => ({
-      ...prevMessage,
-      [event.target.name]: event.target.value,
-    }));
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+
+    setMessage((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -71,9 +62,7 @@ export default function RoomPage() {
 
   return (
     <div className="flex h-[calc(100vh-80px)] w-full overflow-hidden bg-slate-50 dark:bg-zinc-950">
-      {/* --- Main Chat Section --- */}
       <div className="flex flex-1 flex-col border-r border-slate-200 dark:border-zinc-800">
-        {/* Chat Header Area */}
         <div className="flex items-center justify-between border-b bg-white px-6 py-4 dark:bg-zinc-900">
           <div className="flex items-center gap-3">
             <div className="rounded-lg bg-blue-100 p-2 text-blue-600 dark:bg-blue-900/30">
@@ -81,7 +70,7 @@ export default function RoomPage() {
             </div>
             <div>
               <h1 className="text-lg font-bold leading-none">
-                {data?.fullname || "Discussion"}
+                {data?.name || "Discussion"}
               </h1>
               <span className="text-xs text-green-500 font-medium">
                 ● Online
@@ -90,7 +79,6 @@ export default function RoomPage() {
           </div>
         </div>
 
-        {/* Messages Display (Scrollable) */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {messages.map((msg, index) => {
             const isMe = msg.username === currentUser;
@@ -123,17 +111,16 @@ export default function RoomPage() {
               </div>
             );
           })}
-          <div ref={scrollRef} /> {/* Anchor for scrolling */}
+          <div ref={scrollRef} />
         </div>
 
-        {/* Input Bar */}
         <div className="bg-white p-4 dark:bg-zinc-900 border-t">
           <form
             onSubmit={handleSubmit}
             className="mx-auto max-w-4xl flex items-center gap-2"
           >
             <Input
-              name="message"
+              name="body"
               className="flex-1 rounded-full border-slate-200 bg-slate-50 px-6 py-6 focus-visible:ring-blue-500 dark:bg-zinc-800"
               placeholder="Message this room..."
               value={message.body}
@@ -149,8 +136,6 @@ export default function RoomPage() {
           </form>
         </div>
       </div>
-
-      {/* --- Sidebar (Info & Participants) --- */}
       <aside className="hidden w-80 flex-col bg-white lg:flex dark:bg-zinc-900">
         <div className="p-6 space-y-8 overflow-y-auto">
           {/* Room Details */}
@@ -172,7 +157,6 @@ export default function RoomPage() {
             </div>
           </section>
 
-          {/* Participants List */}
           <section>
             <div className="mb-4 flex items-center gap-2 text-slate-400">
               <Users size={16} />

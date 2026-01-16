@@ -131,6 +131,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) CheckUserSession(w http.ResponseWriter, r *http.Request) {
+
 	header := strings.Split(r.Header.Get("Authorization"), " ")
 	if len(header) == 0 || len(header) == 1 {
 		http.Error(w, "AUTHENTICATION FAILED", http.StatusForbidden)
@@ -154,4 +155,36 @@ func (h *Handler) CheckUserSession(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	return
 
+}
+
+func (h *Handler) GETUser(w http.ResponseWriter, r *http.Request) {
+	log.Println("get user endpoint hit")
+
+	cntxt := r.Context()
+
+	// this is causing the problem
+	userjwt, ok := cntxt.Value(dtos.UserContext).(*dtos.UserJwt)
+	if !ok {
+		http.Error(w, "cannot retrieve details asof now", http.StatusNotFound)
+		return
+	}
+
+	row := h.DB.DB.QueryRow(
+		"SELECT user_id, username, first_name,last_name,email,password_hash FROM users WHERE email=$1   limit 1",
+		userjwt.Email,
+	)
+	var user dtos.UserJwt
+	if err := row.Scan(&user.UserId, &user.Username, &user.FirstName, &user.LastName, &user.Email, &user.Password); err != nil {
+		println(err.Error())
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	userjson, err := json.Marshal(user)
+	fmt.Println(userjson)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusExpectationFailed)
+		return
+	}
+	w.WriteHeader(200)
+	w.Write(userjson)
 }
