@@ -91,8 +91,8 @@ func main() {
 
 	roomRouter.Use(loggingMiddleware, middleware.AuthMiddleware)
 	userRouter.Use(loggingMiddleware, middleware.AuthMiddleware)
-
 	userRouter.HandleFunc("", handler.GETUser).Methods("GET")
+	userRouter.HandleFunc("/upload", handler.UploadFile).Methods("POST")
 
 	//user details room endpoint
 
