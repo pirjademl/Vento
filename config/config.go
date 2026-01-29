@@ -32,16 +32,16 @@ func ConnectDB() (*PGConn, error) {
 		DBName,
 		DBPASSWORD,
 	)
+	//connstr := os.Getenv("DATABASE_URL")
 	println(connstr)
 
 	db, _ := sql.Open("postgres", connstr)
 
-	err := db.Ping()
+	if err := db.Ping(); err != nil {
+		return nil, errors.New("cannot connect to postgres databse")
 
-	if err != nil {
-		log.Fatal(" error connecting to the database", err.Error())
-		return nil, err
 	}
+
 	return &PGConn{
 		DB: db,
 	}, nil
