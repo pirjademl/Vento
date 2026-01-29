@@ -6,5 +6,7 @@ type Message struct {
 	Username string `json:"username"`
 	Type     string `json:"type"`
 	Body     string `json:"body"`
+	File     string `json:"file"`
+	FileName string `json:"fileName"`
 	SendAt   string `json:"send_at"`
 }

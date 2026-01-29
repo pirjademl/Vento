@@ -10,6 +10,7 @@ import (
 var (
 	typing  = "typing"
 	message = "message"
+	file    = "file"
 
 	//messages types can be added here
 
@@ -93,6 +94,10 @@ func (pool *Pool) Start() {
 					}
 				}
 				continue
+
+			}
+			if message.Body == "" && message.Type == file {
+				//process
 
 			}
 
