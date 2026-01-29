@@ -39,7 +39,7 @@ export default function LoginPage() {
             onClick: () => console.log("Undo"),
           },
         });
-        router.push(`/rooms`);
+        router.push(`/app/rooms`);
       }
       if (response.status == 404)
         toast("No user found with that email", {
