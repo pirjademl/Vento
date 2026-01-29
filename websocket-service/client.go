@@ -2,6 +2,7 @@ package websocketservice
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -17,7 +18,6 @@ type Client struct {
 
 func (client *Client) Read() {
 	defer func() {
-		fmt.Println("attempting to disconnect client")
 		client.Pool.Disconnect <- client
 		client.Conn.Close()
 	}()
@@ -25,12 +25,16 @@ func (client *Client) Read() {
 	for {
 		var msg Message
 		err := client.Conn.ReadJSON(&msg)
-		fmt.Println(msg)
+
+		//check if the err is closing error and is closed
+		//client.Conn.ReadJSON
+		if e, ok := (err).(*websocket.CloseError); ok {
+			fmt.Println("it is a close error", e.Code, e.Text)
+			return
+		}
 
 		if err != nil {
-			fmt.Println("error reading json message", err.Error())
-		}
-		if err != nil {
+			log.Println("not close error ", err.Error())
 			return
 		}
 		message := Message{
@@ -38,6 +42,8 @@ func (client *Client) Read() {
 			Username: client.Username,
 			Type:     msg.Type,
 			Body:     msg.Body,
+			File:     msg.File,
+			FileName: msg.FileName,
 			RoomId:   client.RoomId,
 			SendAt:   time.Now().Format(time.TimeOnly),
 		}
