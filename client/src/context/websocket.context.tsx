@@ -1,51 +1,82 @@
 "use client";
 
+import { useNotification } from "@/hooks/use.notification";
 import { useParams } from "next/navigation";
-import { createContext, useCallback, useEffect, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 export const WebsocketContext = createContext(null);
 
 export interface IMessage {
   username: string;
+  type: string;
   body: string;
   room_id: string;
   send_time: string;
 }
+//const audio = new AudioData();
 
-export const WebsocketProvider = ({ children }) => {
+export const WebsocketProvider = ({ children }: { children: ReactNode }) => {
+  const { playNotification } = useNotification();
   const [messages, setMessage] = useState<IMessage[]>([]);
-  const [currentUser, setCurrentUser] = useState<string | "">("");
-  const [socket, SetSocket] = useState<WebSocket | null>(null);
+  const [currentUser, setCurrentUser] = useState<string>("");
+  const [socket, setSocket] = useState<WebSocket | null>(null);
+
   const params = useParams();
-  const { roomid } = params;
+  const roomid = params?.roomid as string; // Ensure we have the ID
 
   useEffect(() => {
+    // 1. Guard: Don't connect if roomid isn't available yet
+    if (!roomid) return;
+
     const token = localStorage.getItem("access_token");
-    const user = localStorage.getItem("username");
+    const user = localStorage.getItem("username") || "";
+    setCurrentUser(user);
 
     const websocket = new WebSocket(
       `ws://localhost:8000/ws/rooms/${roomid}?token=${token}`,
     );
 
+    websocket.onopen = () => console.log("WebSocket Connected ✅");
+
     websocket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setMessage((prevMessages) => [...prevMessages, data]);
-      setCurrentUser(user);
+      if (data?.username !== currentUser) {
+        playNotification();
+      }
+
+      const data = JSON.parse(event.data) as IMessage;
+      console.log(data);
+      setMessage((prev) => [...prev, data]);
     };
-    SetSocket(websocket);
+
+    websocket.onerror = (error) => console.error("WebSocket Error:", error);
+
+    websocket.onclose = () => console.log("WebSocket Disconnected ❌");
+
+    setSocket(websocket);
+
+    // 2. Cleanup: This runs when the component unmounts or roomid changes
     return () => {
-      if (websocket.CLOSING) {
-        websocket.close;
+      if (
+        websocket.readyState === WebSocket.OPEN ||
+        websocket.readyState === WebSocket.CONNECTING
+      ) {
+        websocket.close();
       }
     };
-  }, [roomid]);
+  }, [roomid]); // 3. Dependency: Re-run when roomid is detected/changed
+
   const sendMessage = useCallback(
     (msg: IMessage) => {
-      console.log("trying to send a message", msg);
-      if (socket && socket?.readyState == socket.OPEN) {
-        console.log("sending message");
-        console.log(msg);
+      if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify(msg));
+      } else {
+        console.warn("Socket not ready. State:", socket?.readyState);
       }
     },
     [socket],
