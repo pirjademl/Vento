@@ -3,6 +3,7 @@ package handlers
 import (
 	"chat/config"
 	"chat/dtos"
+	"chat/services"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	storage_go "github.com/supabase-community/storage-go"
 )
 
 type Handler struct {
@@ -153,6 +155,7 @@ func (h *Handler) CheckUserSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
+	http.Redirect(w, r, "localhost:3000/profile", http.StatusSeeOther)
 	return
 
 }
@@ -187,4 +190,45 @@ func (h *Handler) GETUser(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(200)
 	w.Write(userjson)
+}
+
+func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
+	file, header, err := r.FormFile("chat-file")
+	if err != nil {
+		http.Error(w, "File error", 400)
+		return
+	}
+	defer file.Close()
+
+	// 1. Get the actual MIME type from the browser (e.g., "text/markdown")
+	contentType := header.Header.Get("Content-Type")
+
+	// 2. Setup options to override the JSON default
+	// We use 'upsert: true' so you can re-upload during testing without 409 errors
+	upsert := true
+	opts := storage_go.FileOptions{
+		ContentType: &contentType,
+		Upsert:      &upsert,
+	}
+
+	client := services.CreateSupabaseStorageClient()
+	filepath := "uploads/" + header.Filename
+
+	// 3. Pass the opts as the fourth argument
+	res, err := client.UploadFile("chat_files", filepath, file, opts)
+	if err != nil {
+		log.Println(res.Code)
+		log.Printf("Detailed Error: %v", err) // Check your terminal for the real reason
+		http.Error(w, "Upload failed", 500)
+		return
+	}
+
+	// 4. Generate the Signed URL
+	signedResp, err := client.CreateSignedUrl("chat_files", filepath, 3600)
+	if err != nil {
+		http.Error(w, "Signing failed", 500)
+		return
+	}
+	w.WriteHeader(201)
+	json.NewEncoder(w).Encode(map[string]string{"url": signedResp.SignedURL})
 }
