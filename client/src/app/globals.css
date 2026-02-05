@@ -4,7 +4,7 @@
 @theme {
   /* This maps the Next.js variable to Tailwind's default sans font */
   --font-sans: var(--font-quicksand), ui-sans-serif, system-ui, sans-serif;
-  
+
   /* This creates a custom utility class: font-playful */
   --font-playful: var(--font-fredoka);
 }
@@ -131,7 +131,88 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* WebWeft-Inspired Design System */
+
+/* Section spacing */
+.section {
+  padding: 6rem 1.5rem;
+}
+
+/* Bold headline styling */
+.headline-xl {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.headline-lg {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Monospace accent for technical feel */
+.mono {
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+}
+
+/* Subtle card - no rounded corners, clean borders */
+.card-clean {
+  border: 1px solid rgba(128, 128, 128, 0.2);
+  padding: 2rem;
+  transition: border-color 0.2s ease;
+}
+
+.card-clean:hover {
+  border-color: rgba(128, 128, 128, 0.5);
+}
+
+/* Primary button - solid, no glow */
+.btn-primary {
+  background: white;
+  color: black;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  transition: opacity 0.2s ease;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.dark .btn-primary {
+  background: white;
+  color: black;
+}
+
+/* Ghost button */
+.btn-ghost {
+  background: transparent;
+  color: inherit;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  transition: border-color 0.2s ease;
+}
+
+.btn-ghost:hover {
+  border-color: rgba(128, 128, 128, 0.6);
+}
+
+/* Muted text */
+.text-muted-custom {
+  color: rgba(128, 128, 128, 0.8);
+}
+
+/* Grid divider line */
+.divider {
+  height: 1px;
+  background: rgba(128, 128, 128, 0.2);
 }

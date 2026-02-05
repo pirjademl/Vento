@@ -16,8 +16,6 @@ import {
   Crown,
   Info,
   Hash,
-  PlusCircle,
-  DownloadCloudIcon,
   DownloadIcon,
   Plus,
 } from "lucide-react";

@@ -14,6 +14,9 @@ export const WebsocketContext = createContext(null);
 
 export interface IMessage {
   username: string;
+  fileName: string;
+  file: string;
+
   type: string;
   body: string;
   room_id: string;
@@ -28,10 +31,9 @@ export const WebsocketProvider = ({ children }: { children: ReactNode }) => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
   const params = useParams();
-  const roomid = params?.roomid as string; // Ensure we have the ID
+  const roomid = params?.roomid as string;
 
   useEffect(() => {
-    // 1. Guard: Don't connect if roomid isn't available yet
     if (!roomid) return;
 
     const token = localStorage.getItem("access_token");
@@ -42,10 +44,8 @@ export const WebsocketProvider = ({ children }: { children: ReactNode }) => {
       `ws://localhost:8000/ws/rooms/${roomid}?token=${token}`,
     );
 
-    websocket.onopen = () => console.log("WebSocket Connected ✅");
-
     websocket.onmessage = (event) => {
-      if (data?.username !== currentUser) {
+      if (event.data.username !== currentUser) {
         playNotification();
       }
 

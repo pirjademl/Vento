@@ -1,7 +1,16 @@
 import { IMessage } from "@/context/websocket.context";
 import { DownloadIcon } from "lucide-react";
 
-export const Message = ({ msg, user }: { msg: IMessage; user: string }) => {
+export const Message = ({
+  msg,
+  user,
+  previousMessages,
+}: {
+  msg: IMessage;
+  user: string;
+  previousMessages: any;
+}) => {
+  //console.log("rendering messages");
   const isMe = msg.username === user;
   const isOnlyFile = msg.file !== "" && msg.body === "";
   const FileWithMsg = msg.file !== "" && msg.body !== "";
