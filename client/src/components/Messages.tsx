@@ -8,9 +8,8 @@ export const Message = ({
 }: {
   msg: IMessage;
   user: string;
-  previousMessages: any;
 }) => {
-  //console.log("rendering messages");
+  console.log(msg);
   const isMe = msg.username === user;
   const isOnlyFile = msg.file !== "" && msg.body === "";
   const FileWithMsg = msg.file !== "" && msg.body !== "";
