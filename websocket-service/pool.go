@@ -39,6 +39,7 @@ func (pool *Pool) Start() {
 	for {
 		select {
 		case client := <-pool.Register:
+
 			if _, ok := pool.Rooms[client.RoomId]; !ok {
 				pool.Rooms[client.RoomId] = &Room{
 					RoomId:  client.RoomId,
@@ -46,15 +47,12 @@ func (pool *Pool) Start() {
 				}
 			}
 			pool.Rooms[client.RoomId].Clients[client] = true
-			fmt.Println(
-				"new connection estabilished room size",
-				len(pool.Rooms[client.RoomId].Clients),
-			)
-			for client, _ = range pool.Rooms[client.RoomId].Clients {
-				client.Conn.WriteJSON(
+
+			for localClient, _ := range pool.Rooms[client.RoomId].Clients {
+				localClient.Conn.WriteJSON(
 					Message{
 						RoomId:   client.RoomId,
-						Type:     "new",
+						Type:     "Register",
 						Username: client.Username,
 						Body:     client.Username + "joined",
 						SendAt:   time.Now().Format(time.TimeOnly),
@@ -64,18 +62,26 @@ func (pool *Pool) Start() {
 			break
 
 		case client := <-pool.Disconnect:
+			room, ok := pool.Rooms[client.RoomId]
 
-			fmt.Println("before deleting the client", len(pool.Rooms[client.RoomId].Clients))
-			delete(pool.Rooms[client.RoomId].Clients, client)
-			fmt.Println("after deleting the client", len(pool.Rooms[client.RoomId].Clients))
+			if !ok {
+				break
+			}
+			delete(room.Clients, client)
 
-			for client, _ = range pool.Rooms[client.RoomId].Clients {
-				client.Conn.WriteJSON(
+			if len(room.Clients) <= 0 {
+				delete(pool.Rooms, client.RoomId)
+				break
+			}
+
+			for localClient, _ := range pool.Rooms[client.RoomId].Clients {
+				localClient.Conn.WriteJSON(
 					Message{
+						UserId:   client.RoomId,
 						RoomId:   client.RoomId,
 						Username: client.Username,
 						Type:     "Disconnect",
-						Body:     client.Username + "Disconnected",
+						Body:     client.Username + " " + "Disconnected",
 						SendAt:   time.Now().Format(time.TimeOnly),
 					},
 				)
