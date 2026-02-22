@@ -14,7 +14,9 @@ export const Message = ({
   const isOnlyFile = msg.file !== "" && msg.body === "";
   const FileWithMsg = msg.file !== "" && msg.body !== "";
   return (
-    <div className={`flex w-full ${isMe ? "justify-end" : "justify-start"}`}>
+    <div
+      className={`flex w-full ${isMe ? "justify-end" : "justify-start"}  mt-5`}
+    >
       <div
         className={`flex flex-col gap-1 max-w-[80%] ${isMe ? "items-end" : "items-start"}`}
       >
@@ -55,7 +57,7 @@ export const Messages = ({
     return <div>No Message As of Now</div>;
   }
   return (
-    <div>
+    <div className="">
       {msgs.map((msg, val) => (
         <Message msg={msg} key={val} user={user} />
       ))}
