@@ -21,7 +21,6 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     try {
       const response = await fetch("http://localhost:8000/api/v1/auth/login", {
         body: JSON.stringify(user),
@@ -30,6 +29,13 @@ export default function LoginPage() {
           "Content-Type": "application/json",
         },
       });
+      if (response.status === 404) {
+        toast("user not found ", {
+          description: "create account and try logging in ",
+        });
+        return;
+      }
+
       const data = await response.json();
       localStorage.setItem("access_token", data.access_token);
       localStorage.setItem("username", data.username);
@@ -68,7 +74,9 @@ export default function LoginPage() {
 
       {/* Login Form */}
       <div className="max-w-md mx-auto px-6 pt-24">
-        <p className="mono text-sm text-muted-foreground mb-2">// Authentication</p>
+        <p className="mono text-sm text-muted-foreground mb-2">
+          // Authentication
+        </p>
         <h1 className="headline-lg mb-2">WELCOME BACK.</h1>
         <p className="text-muted-foreground mb-8">
           Sign in to continue to your conversations.

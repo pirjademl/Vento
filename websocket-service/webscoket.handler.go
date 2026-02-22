@@ -3,6 +3,7 @@ package websocketservice
 import (
 	"chat/config"
 	"chat/dtos"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -38,7 +39,7 @@ func (ws *Websockethandler) ServeWebsocket(
 
 	UserJwt, ok := cntxt.Value(dtos.UserContext).(*dtos.UserJwt)
 	if !ok {
-		http.Error(w, "NOt Authorized to join the room", http.StatusUnauthorized)
+		http.Error(w, "Not Authorized to join the room", http.StatusUnauthorized)
 		return
 	}
 	roomId, err := strconv.Atoi(vars["roomid"])
@@ -62,6 +63,7 @@ func (ws *Websockethandler) ServeWebsocket(
 		http.Error(w, err.Error(), http.StatusUpgradeRequired)
 		return
 	}
+	fmt.Println("user Id of new user ", UserJwt.UserId)
 	client := &Client{
 		Username: UserJwt.Username,
 		RoomId:   roomId,

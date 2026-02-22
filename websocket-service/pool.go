@@ -50,13 +50,13 @@ func (pool *Pool) Start() {
 				"new connection estabilished room size",
 				len(pool.Rooms[client.RoomId].Clients),
 			)
-			for client, _ = range pool.Rooms[client.RoomId].Clients {
-				client.Conn.WriteJSON(
+			for localClient, _ := range pool.Rooms[client.RoomId].Clients {
+				localClient.Conn.WriteJSON(
 					Message{
 						RoomId:   client.RoomId,
 						Type:     "new",
 						Username: client.Username,
-						Body:     client.Username + "joined",
+						Body:     client.Username + " " + "joined",
 						SendAt:   time.Now().Format(time.TimeOnly),
 					},
 				)
@@ -64,28 +64,29 @@ func (pool *Pool) Start() {
 			break
 
 		case client := <-pool.Disconnect:
+			room, ok := pool.Rooms[client.RoomId]
+			if !ok {
+				break
+			}
+			delete(room.Clients, client)
 
-			fmt.Println("before deleting the client", len(pool.Rooms[client.RoomId].Clients))
-			delete(pool.Rooms[client.RoomId].Clients, client)
-			fmt.Println("after deleting the client", len(pool.Rooms[client.RoomId].Clients))
+			if len(room.Clients) <= 0 {
+				delete(pool.Rooms, client.RoomId)
+			}
 
-			for client, _ = range pool.Rooms[client.RoomId].Clients {
-				client.Conn.WriteJSON(
+			for localClient, _ := range pool.Rooms[client.RoomId].Clients {
+				localClient.Conn.WriteJSON(
 					Message{
 						RoomId:   client.RoomId,
 						Username: client.Username,
 						Type:     "Disconnect",
-						Body:     client.Username + "Disconnected",
+						Body:     client.Username + " " + "Disconnected",
 						SendAt:   time.Now().Format(time.TimeOnly),
 					},
 				)
-
 			}
-
 			break
-
 		case message := <-pool.BroadCast:
-			println("new message arrived trying to broadcast")
 			if message.Type == typing {
 				for client, _ := range pool.Rooms[message.RoomId].Clients {
 					if err := client.Conn.WriteJSON(message); err != nil {
