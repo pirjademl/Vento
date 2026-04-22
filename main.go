@@ -74,7 +74,7 @@ func main() {
 	publicrouter.HandleFunc("/api/v1/auth/user", handler.CheckUserSession).Methods("POST")
 
 	//	roomRouter := publicrouter.PathPrefix("/api/v1/rooms/").Subrouter()
-	//
+	// check if the pull request triggers the webhook
 	//	roomRouter.Use(loggingMiddleware)
 	//	roomRouter.Use(middleware.AuthMiddleware)
 
