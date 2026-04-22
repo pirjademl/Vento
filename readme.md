@@ -1,5 +1,5 @@
 # design doc
-*** database architecture 
+*** check if this hits the webhook correctly 
  [] chats table
     - chatId 
     - firstName 
