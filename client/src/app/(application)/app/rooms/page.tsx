@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useFetch } from "@/utils/use-fetch";
 import { useRouter } from "next/navigation";
-import { apiInstance } from "@/api/api";
+
 
 interface IRoom {
   name: string;
