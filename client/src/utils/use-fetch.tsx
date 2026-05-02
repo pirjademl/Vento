@@ -1,6 +1,6 @@
 "use client";
 
-import { apiInstance } from "@/api/api";
+
 import { useSelectedLayoutSegment } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
