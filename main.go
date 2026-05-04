@@ -4,7 +4,7 @@ import (
 	"chat/config"
 	"chat/handlers"
 	"chat/middleware"
-	websocketservice "chat/websocket-service"
+	. "chat/websocket-service"
 	"log"
 	"net/http"
 	"os"
