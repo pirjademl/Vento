@@ -94,7 +94,12 @@ func main() {
 	userRouter.HandleFunc("", handler.GETUser).Methods("GET")
 	userRouter.HandleFunc("/upload", handler.UploadFile).Methods("POST")
 
-	userRouter.HandleFunc("/users",handler.GetUsers).Methods("GET")
+	//user details room endpoint
+    // se if this triggers the code changes in the webhook 
+    // let's see if that works because I have clicked the push event 
+	// 2. Use "/" for the base 'rooms' list
+	//
+	//
 
 
 	roomRouter.HandleFunc("", handler.GETROOMs).Methods("GET")
